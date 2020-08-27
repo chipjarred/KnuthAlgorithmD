@@ -238,7 +238,7 @@ func divide<T, U>(_ x: T, by y: T.Element, result z: inout U) -> T.Element
 
 
 // -------------------------------------
-/*
+/**
  Divide multiprecision unsigned integer, `x`, by multiprecision unsigned
  integer, `y`, obtaining both the quotient and remainder.
  
@@ -405,7 +405,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
 }
 
 // -------------------------------------
-/*
+/**
  Divide multiprecision unsigned integer, `x`, by multiprecision unsigned
  integer, `y`, obtaining both the quotient and remainder.
  
@@ -471,7 +471,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
 
 #if arch(arm64) || arch(x86_64)
 // -------------------------------------
-/*
+/**
  Divide multiprecision unsigned integer, `x`, by multiprecision unsigned
  integer, `y`, obtaining both the quotient and remainder.
  
