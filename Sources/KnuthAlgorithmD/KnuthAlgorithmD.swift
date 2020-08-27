@@ -136,7 +136,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
          triggered frequently, it does not actually repeat very many times when
          it is triggered, as the adjustments to q̂ and r̂ quickly bring it a
          point it can break out.  Still any inner loops or branches will slow
-         things down, so it's worth optimizing.  I've commented on a those
+         things down, so it's worth optimizing.  I've commented on those
          optimizatons below, but mainly they involve extracting constant
          expressions (theoretically the compiler would do that for us anyway as
          "invariant code motion" is a common optimization), replacing a boolean
@@ -255,7 +255,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
          The "test first" approach requires additional storage for the
          intermediate product in order to compare it with the current dividend.
          On top of the cost of allocating it, it would raise the chances of L2
-         cache faults, slowing things down more.  They way we're doing it, the
+         cache faults, slowing things down more.  The way we're doing it, the
          product goes right back into the dividend via subtraction.  The only
          extra "storage" needed is per digit, which will be in a register.
          
