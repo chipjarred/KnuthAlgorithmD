@@ -195,6 +195,10 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
  Implements Alogorithm D, from Donald Knuth's, *The Art of Computer Programming*
  , Volume 2,*Semi-numerical Algorithms*, Chapter 4.3.1.
  
+ - Note: This is a wrapper for the main `divideWithRemainder_KnuthD` function
+    to allow use of `UInt64` digits, provided that the collections support
+    accessing contiguous storage.
+ 
  - Parameters:
     - dividend: The dividend stored as an unsigned multiprecision integer with
         its least signficant digit at index 0 (ie, little endian). Must have at
@@ -260,6 +264,13 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
  
  Implements Alogorithm D, from Donald Knuth's, *The Art of Computer Programming*
  , Volume 2,*Semi-numerical Algorithms*, Chapter 4.3.1.
+ 
+ 
+ - Note: This is a wrapper for the main `divideWithRemainder_KnuthD` function
+    to allow use of `UInt` digits on machines where `UInt` is 64-bits, provided
+    that the collections support accessing contiguous storage.  It is not
+    needed on machines where `UInt` is 32-bits.
+
  
  - Parameters:
     - dividend: The dividend stored as an unsigned multiprecision integer with
