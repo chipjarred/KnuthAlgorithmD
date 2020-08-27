@@ -1,6 +1,6 @@
 # KnuthAlgorithmD
 
-Swift implementation of Donald Knuth's "Algorithm D" for dividing multiprecision unsigned integers from *The Art of Computer Programming", Volume 2: *Semi-numerical Algorithms*, Chapter 4.3.1
+Swift implementation of Donald Knuth's "Algorithm D" for dividing multiprecision unsigned integers from *The Art of Computer Programming*, Volume 2: *Semi-numerical Algorithms*, Chapter 4.3.1
 
 I also have to give some credit to Henry Warren's book *Hacker's Delight*, and since the hackersdelight.org website for the source code is dead, to this github [repo](https://github.com/hcs0/Hackers-Delight) that archived it.  Not only did the test cases provided saved me lots of headaches creating my own, but while contemplating why Warren uses a `goto` in his C implementation, I realized why my own implementation of that loop was subtly wrong, allowing me to fix it, and that it is a good example of a case where formally structured loop doesn't work. I had to use an infinite loop with `break` and `continue` to accomplish the same thing.  Debugging that without the *Hacker's Delight* code as reference would undoubtedly taken quite a long time.
 
