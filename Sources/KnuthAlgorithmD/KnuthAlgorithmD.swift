@@ -26,7 +26,7 @@
  integer, `y`, obtaining both the quotient and remainder.
  
  Implements Alogorithm D, from Donald Knuth's, *The Art of Computer Programming*
- , Volume 2,*Semi-numerical Algorithms*, Chapter 4.3.1.
+ , Volume 2,*Semi-numerical Algorithms*, Chapter 4.3.3.
  
  - Note: This version of the function is super-generic, hence the long list of
  type constraints, but you can use any kind of random access collection for the
@@ -288,7 +288,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
  integer, `y`, obtaining both the quotient and remainder.
  
  Implements Alogorithm D, from Donald Knuth's, *The Art of Computer Programming*
- , Volume 2,*Semi-numerical Algorithms*, Chapter 4.3.1.
+ , Volume 2,*Semi-numerical Algorithms*, Chapter 4.3.3.
  
  - Note: This is a wrapper for the main `divideWithRemainder_KnuthD` function
     to allow use of `UInt64` digits, provided that the collections support
@@ -358,7 +358,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
  integer, `y`, obtaining both the quotient and remainder.
  
  Implements Alogorithm D, from Donald Knuth's, *The Art of Computer Programming*
- , Volume 2,*Semi-numerical Algorithms*, Chapter 4.3.1.
+ , Volume 2,*Semi-numerical Algorithms*, Chapter 4.3.3.
  
  
  - Note: This is a wrapper for the main `divideWithRemainder_KnuthD` function
