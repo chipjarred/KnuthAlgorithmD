@@ -115,7 +115,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
     
     let vLast = BigDigit(v.last!)
     let vNextToLast = BigDigit(v[n - 2])
-    let cRightDelta = vLast * radix
+    let partialRemainderDelta = vLast * radix
 
     for j in (0...(m - n)).reversed()
     {
@@ -127,141 +127,27 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
         var (q̂, r̂) = dividendHead.quotientAndRemainder(dividingBy: vLast)
         
         let ujPlusNMinus2 = BigDigit(u[jPlusN &- 2])
-        
-        /*
-         The following loop corresponds to the Step D3 in Knuth's Alogorithm D.
-         It does operations and comparison involving just the first two digits
-         of the divisor and the first two digits of the dividend in an attempt
-         quickly estimate the next quotient digit.  Although this loop is
-         triggered frequently, it does not actually repeat very many times when
-         it is triggered, as the adjustments to q̂ and r̂ quickly bring it a
-         point it can break out.  Still any inner loops or branches will slow
-         things down, so it's worth optimizing.  I've commented on those
-         optimizatons below, but mainly they involve extracting constant
-         expressions (theoretically the compiler would do that for us anyway as
-         "invariant code motion" is a common optimization), replacing a boolean
-         "or" with a bitwise "or" to eliminate a hidden branch, and replacing
-         repeated multiplication where one of the multiplicands remains
-         constant and the other changes by one with addition or subtraction.
-         
-         These next two lines are inside the loop according to Knuth's
-         algorithm, but in fact, we only need to do the multiplications once,
-         then we can update the products with addition and subtraction in the
-         loop if needed. To be sure, these multiplications translate directly
-         to single native instructions, so they're not slow, but so do the
-         addition and subtraction, and they're faster than multiplication.
-         */
-        var c2Left = q̂ &* vNextToLast
-        var c2Right = radix &* r̂ &+ ujPlusNMinus2
+        var partialProduct = q̂ &* vNextToLast
+        var partialRemainder = radix &* r̂ &+ ujPlusNMinus2
         
         while true
         {
             let q̂IsTwoDigits = UInt8(q̂ >= radix)
-            let otherDigitsMakeQTooHigh = UInt8(c2Left > c2Right)
+            let otherDigitsMakeQTooHigh =
+                UInt8(partialProduct > partialRemainder)
             
-            /*
-             Bitwise "or" here helps the branch predictor. The logical "or" one
-             would normally use implicitly adds another branch to be
-             mispredicted
-             */
             if (q̂IsTwoDigits | otherDigitsMakeQTooHigh) == 1
             {
                 q̂ &-= 1
                 r̂ &+= vLast
-                
-                /*
-                 As mentioned in a previous comment, we avoid multiplying
-                 inside the loop.  The following two lines are the secret sauce.
-                 */
-                c2Left &-= vNextToLast
-                c2Right &+= cRightDelta
+                partialProduct &-= vNextToLast
+                partialRemainder &+= partialRemainderDelta
                 
                 if r̂ < radix { continue }
             }
             break
         }
 
-        /*
-         Notes on the efficiency of subtracting then retro-adjusting:
-         
-         In the subtraction below, we get a borrow if q̂ is still too high.
-         The while loop above catches most of the cases where q̂ was one too big
-         and all of the cases where q̂ was two too big, but that check only
-         involved the first two digits of the divisor and first two digit of
-         the dividend.  Though rare, we can still have cases where lower digits
-         in the dividend and divisor still make q̂ one too big.
-         
-         You might be tempted think that rarity is what makes just blindly
-         doing the subtraction first and then adding back if needed more
-         efficient than checking first to see if we should subtract first, but
-         you'd be wrong.  To see why, let's compare the number of primitive
-         digit operations we need for the two possibilties.
-         
-         For what we're actually doing:
-         
-            Multiply-and-subtract: This is done in a single pass O(n) loop.
-                Technically the multiply and subtract are still 2 operations per
-                digit, but since we do it in one pass, it's fair to call it n,
-                since we don't execute a second sequence of branch instructions,
-                as we would if we were to first do the whole multiplication and
-                then do the subtraction. But let's call it 1.5 n to take into
-                account that we are doing more than just a single primitive
-                arithmetic operation per iteration.
-         
-            Test the borrow: This is a constant time operation.  We can ignore
-                its cost.
-         
-            Conditionally add back.  This is another single-pass loop of n
-                primitive digit operations.
-         
-         So the total is 1.5 * n normally, and rarely 2.5 * n.
-         
-         The alternative would be to do the multiplication, but hold off on the
-         subtraction, and instead compare the product with the current dividend.
-         If the product is larger than the dividend, decrement q̂ and recompute
-         the product, then do the subtraction.  If the product was less than
-         the dividend, we'd go straight to doing the final subtraction.  What's
-         the cost of that?
-         
-            Multiply: This is n primitive digit operations.
-         
-            Compare: Conceptually the comparison is O(n), but for practical
-                purposes, in this scenario it would return a result in the
-                first few digits the vast majority of the time, so we we can
-                treat it as constant time on average, and ignore it.
-         
-            Conditionally decrement q̂: This is constant time, so we can ignore
-                it.
-         
-            Conditionally recompute the product:  There are two ways we could
-                do this.  We could either multiply the new q̂ by the divisor
-                again, or we could subtract the divisor from our existing
-                product.  Both require n operations, though subtraction is
-                faster for the CPU to do, so we'd probably do it that way.  In
-                either case, it's n primitive digit operations.
-         
-            Subtract the product from the dividend: This is n digit operations.
-         
-         In this alternative scenario we require 2 * n operations if we don't
-         need to correct q̂, namely multiply and subtract.  When we do need
-         to adjust q̂, it's 3 * n operations, namely mutiplication, and two
-         subtractions (or two multiplications and one subtraction).
-         
-         That's 33% more work than what we're actually doing when q̂ does not
-         need adjustment, and 20% more when q̂ does need adjustment. In short,
-         checking in advance would be more costly regardless of how rare the
-         adjustment is.
-         
-         The "test first" approach requires additional storage for the
-         intermediate product in order to compare it with the current dividend.
-         On top of the cost of allocating it, it would raise the chances of L2
-         cache faults, slowing things down more.  The way we're doing it, the
-         product goes right back into the dividend via subtraction.  The only
-         extra "storage" needed is per digit, which will be in a register.
-         
-         The immediately following statement does multiplicaton and subtraction
-         together.
-         */
         var borrow = subtractReportingBorrow(
             v[0..<n],
             times: q̂.low,
