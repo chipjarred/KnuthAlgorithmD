@@ -20,7 +20,7 @@ If you've got your own multi-precision number type, you've almost certianly sett
 
 If you want to use 64-bit digits though, you'll run into the problem that they're not promotable, which is necessary because the algorithm relies on some full-width multiplication and division.   There are two solutions:
 
-1) Implement a 128-bit type that conforms to `FixedWidthInteger` and `UnsignedInteger`, then make `UInt64 conform to `PromotableInteger` with your 128-bit integer as its `Promoted` type.  `PromotableInteger` is a protocol provided by this package.  The same applies to `UInt` on 64-bit systems.
+1) Implement a 128-bit type that conforms to `FixedWidthInteger` and `UnsignedInteger`, then make `UInt64` conform to `PromotableInteger` with your 128-bit integer as its `Promoted` type.  `PromotableInteger` is a protocol provided by this package.  The same applies to `UInt` on 64-bit systems.
 
 2) Modify the algorithm to use `FixedWidthInteger`'s  `multipliedFullWidth` and `dividingFullWidth` methods instead of relying on arithmetic operators and `quotientAndRemainder`.
 
