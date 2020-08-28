@@ -115,7 +115,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
     
     let vLast = BigDigit(v.last!)
     let vNextToLast = BigDigit(v[n - 2])
-    let partialRemainderDelta = vLast * radix
+    let partialDividendDelta = vLast * radix
 
     for j in (0...(m - n)).reversed()
     {
@@ -128,20 +128,20 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
         
         let ujPlusNMinus2 = BigDigit(u[jPlusN &- 2])
         var partialProduct = q̂ &* vNextToLast
-        var partialRemainder = radix &* r̂ &+ ujPlusNMinus2
+        var partialDividend = radix &* r̂ &+ ujPlusNMinus2
         
         while true
         {
             let q̂IsTwoDigits = UInt8(q̂ >= radix)
             let otherDigitsMakeQTooHigh =
-                UInt8(partialProduct > partialRemainder)
+                UInt8(partialProduct > partialDividend)
             
             if (q̂IsTwoDigits | otherDigitsMakeQTooHigh) == 1
             {
                 q̂ &-= 1
                 r̂ &+= vLast
                 partialProduct &-= vNextToLast
-                partialRemainder &+= partialRemainderDelta
+                partialDividend &+= partialDividendDelta
                 
                 if r̂ < radix { continue }
             }
