@@ -12,7 +12,7 @@ The algorithm assumes that the unsigned integer type used for digits is promotab
 
 ## Things you'll want to specialize
 
-`divideWithRemainder_KnuthD` is marked as `@inlinable`,  not because I think the compiler will actually inline it, but because it exposes the implementaton outside of the package so the compiler can specialize it for your project.  I hope that will eliminate most or maybe even all of the thunking through generic/protocol witness tables that could slow it down.  However, if you're doing anything serious with it, you'll probably want to move the code directly into your project and specialize it manually.  There are three key things to focus on.
+`divideWithRemainder_KnuthD` is marked as `@inlinable`,  not because I think the compiler will actually inline it, but because it exposes the implementation outside of the package so the compiler can specialize it for your project.  I hope that will eliminate most or maybe even all of the thunking through generic/protocol witness tables that could slow it down.  However, if you're doing anything serious with it, you'll probably want to move the code directly into your project and specialize it manually.  There are three key things to focus on.
 
 ### The Digit type
 
