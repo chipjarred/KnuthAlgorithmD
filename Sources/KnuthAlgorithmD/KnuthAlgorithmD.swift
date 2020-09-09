@@ -145,7 +145,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
         if subtractReportingBorrow(v[0..<n], times: q̂.low, from: &u[j...jPlusN])
         {
             quotient[j] &-= 1
-            u[j...jPlusN] += v[0..<n]
+            u[j...jPlusN] += v[0..<n] // digit collection addition!
         }
     }
     
