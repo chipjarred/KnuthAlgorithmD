@@ -77,7 +77,7 @@ func addReportingCarry<T: FixedWidthInteger>(_ x: inout T, _ y: T) -> T
 func subtractReportingBorrow<T, U>(
     _ x: T,
     times k: T.Element,
-    from y: inout U) -> T.Element
+    from y: inout U) -> Bool
     where T: RandomAccessCollection,
     T.Element: FixedWidthInteger,
     T.Element.Magnitude == T.Element,
@@ -87,17 +87,24 @@ func subtractReportingBorrow<T, U>(
     U.Element == T.Element,
     U.Index == T.Index
 {
-    assert(x.count <= y.count)
+    assert(x.count + 1 <= y.count)
     
+    var i = x.startIndex
+    var j = y.startIndex
+
     var borrow: T.Element = 0
-    for (i, j) in zip(x.indices, y.indices)
+    while i < x.endIndex
     {
         borrow = subtractReportingBorrow(&y[j], borrow)
         let (pHi, pLo) = k.multipliedFullWidth(by: x[i])
         borrow &+= pHi
         borrow &+= subtractReportingBorrow(&y[j], pLo)
+        
+        i &+= 1
+        j &+= 1
     }
-    return borrow
+    
+    return 0 != subtractReportingBorrow(&y[j], borrow)
 }
 
 // -------------------------------------
@@ -110,11 +117,9 @@ func subtractReportingBorrow<T, U>(
     - y: The second addend and the storage for the resulting sum as a
         collection of digits with the the least signficant digit at index 0
         (ie. little endian).
- 
- - Returns: Carry out of the most signfnifant digits of `y`.
  */
 @usableFromInline @inline(__always)
-func addReportingCarry<T, U>(x: T, to y: inout U) -> T.Element
+func += <T, U>(left: inout U, right: T )
     where T: RandomAccessCollection,
     T.Element: FixedWidthInteger,
     T.Index == Int,
@@ -123,15 +128,21 @@ func addReportingCarry<T, U>(x: T, to y: inout U) -> T.Element
     U.Element == T.Element,
     U.Index == T.Index
 {
-    assert(x.count == y.count)
+    assert(right.count + 1 == left.count)
     var carry: T.Element = 0
-    for (i, j) in zip(x.indices, y.indices)
+    
+    var i = right.startIndex
+    var j = left.startIndex
+    while i < right.endIndex
     {
-        carry = addReportingCarry(&y[j], carry)
-        carry &+= addReportingCarry(&y[j], x[i])
+        carry = addReportingCarry(&left[j], carry)
+        carry &+= addReportingCarry(&left[j], right[i])
+        
+        i &+= 1
+        j &+= 1
     }
     
-    return carry
+    left[j] &+= carry
 }
 
 // -------------------------------------

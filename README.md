@@ -6,9 +6,7 @@ I also have to give some credit to Henry Warren's book *Hacker's Delight*, and s
 
 The code of interest is in  `divideWithRemainder_KnuthD(_:by:quotient:remainder)` function found in `KnuthAlgorithmD.swift`.  For the purposes of this repo, I've made it super generic.   That means the function signature has a whole host of `where` clause constraints, and that might seem a little daunting, but you can use any kind of random access collection that uses integer indices for any of the parameters, so long as they agree on what kind unsigned `FixedWidthInteger` they contain.  This should make it easy to just drop into your code and use to get started, but for serious use, you'll want to specialize it.  I'll discuss that below. 
 
-Be sure to read the function's doc comments, because the algorithm places constraints on the sizes of the collections you pass in.  The dividend must be at least as large as the divisor.  Your collection to receive the quotient must be large enough to hold it (1 + the difference in size between the dividend and divisor), and the collection for the remainder must be as large as the divisor.  These are not constraints I decided on.  Knuth states them when describing the algorithm in *The Art of Computer Programming*.  The idea is for you call it as an implementaton for your own division, so you can arrange for the preconditions to be met.  Exactly how you'd do that depends on how you've chosen to represent your multiprecision numbers.
-
-The algorithm assumes that the unsigned integer type used for digits is promotable to a larger integer of double the size.  That would make using `UInt64` (or `UInt` on 64-bit machines) as your digits a problem, since there isn't a larger Swift-native integer type.  To solve that, I provide a wrapper to re-interpret the digit collections as `UInt32` so long as the collections you use support contiguous storage.  That should seamlessly take care of most of the cases where you use 64-bit integers as digits, but it also means that you're mostly doing the division with in 32- not 64-bit digits, and so not taking full advantage of the power of a 64-bit CPU.
+Be sure to read the function's doc comments, because the algorithm places constraints on the sizes of the collections you pass in.  The dividend must be at least as large as the divisor.  Your collection to receive the quotient must be large enough to hold it (1 + the difference in size between the dividend and divisor), and the collection for the remainder must be as large as the divisor.  These are not constraints I decided on.  Knuth states them when describing the algorithm in *The Art of Computer Programming*.  The idea is for you call it as an implementaton for your own divsion, so you can arrange for the preconditions to be met.  Exactly how you'd do that depends on how you've chosen to represent your multiprecision numbers.
 
 ## Things you'll want to specialize
 
@@ -16,19 +14,7 @@ The algorithm assumes that the unsigned integer type used for digits is promotab
 
 ### The Digit type
 
-If you've got your own multi-precision number type, you've almost certianly settled on a specific built-in integer type for your digits, and it's unlikely that you'll want to use different types, and even if you do, in most cases a simple `typealias` rather than generics would do the trick.  If you use 32-bit or smaller digits, the code will work by just explicitly specifying that type.  
-
-If you want to use 64-bit digits though, you'll run into the problem that they're not promotable, which is necessary because the algorithm relies on some full-width multiplication and division.   There are two solutions:
-
-1) Implement a 128-bit type that conforms to `FixedWidthInteger` and `UnsignedInteger`, then make `UInt64` conform to `PromotableInteger` with your 128-bit integer as its `Promoted` type.  `PromotableInteger` is a protocol provided by this package.  The same applies to `UInt` on 64-bit systems.
-
-2) Modify the algorithm to use `FixedWidthInteger`'s  `multipliedFullWidth` and `dividingFullWidth` methods instead of relying on arithmetic operators and `quotientAndRemainder`.
-
-Option 1 is a bit of a chicken and the egg problem, because it's very likely that implementing 128-bit and larger types is precisely why you want to use this function in the first place. Still, it can work, because the 128-bit digit type doesn't have to implement everything, and the division case it needs to handle is dividing a 128-bit value by a 64-bit value (ie. the high 64 bits of the 128-bit divisor is always 0). 
-
-Option 2 is more immediately doable, but `multipliedFullWidth` returns a tuple of integers, and `dividingFullWidth` takes a tuple as its parameter, which in and of itself isn't a problem, but you need to do some comparisons,  addition and subtraction on those tuples too, treating them as though they were a single 128-bit number.  That will require you to manually compare both parts separately, remember to manually carry overflows in adding from the low part to the high part, and similarly subtract borrows.  It makes the code a little messier, which is why I didn't do it in version I provide here, but totally worth it for serious use.  
-
-Fortunately the only part that really needs modifying to support 64-bit digits is the arithmetic related to the inner `while` loop that does quick testing to see if the estimated quotient digit is too large (corresponding to Step D3 in Knuth's algorithm).
+If you've got your own multi-precision number type, you've almost certianly settled on a specific built-in integer type for your digits, and it's unlikely that you'll want to use different types, and even if you do, in most cases a simple `typealias` rather than generics would do the trick.   This section used to talk about how to handle 64-bit digit types, because they were a problem, but I've modified the code so they are now handled as-is.
 
 ### The Collection types
 
