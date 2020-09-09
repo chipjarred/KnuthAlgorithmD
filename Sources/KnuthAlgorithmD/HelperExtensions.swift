@@ -41,15 +41,19 @@ internal extension RandomAccessCollection
         body: (UnsafeBufferPointer<UInt32>) throws -> R) rethrows -> R
     {
         return try withContiguousStorageIfAvailable
-        {
+        { buf in
             precondition(
-                $0.baseAddress != nil,
+                buf.baseAddress != nil,
                 "\(Self.self) does not support accessing contiguous storage"
             )
             
-            return try $0.withMemoryRebound(to: UInt32.self) {
-                return try body($0)
-            }
+            return try buf.baseAddress!
+                .withMemoryRebound(to: UInt32.self, capacity: buf.count * 2)
+                { ptr in
+                    return try body(
+                        UnsafeBufferPointer(start: ptr, count: buf.count * 2)
+                    )
+                }
         }!
     }
 }
@@ -66,16 +70,22 @@ internal extension RandomAccessCollection
         body: (UnsafeMutableBufferPointer<UInt32>) throws -> R) rethrows -> R
     {
         return try withContiguousMutableStorageIfAvailable
-        {
+        { buf in
             precondition(
-                $0.baseAddress != nil,
-                "\(Self.self) does not support accessing mutable contiguous "
-                + "storage"
+                buf.baseAddress != nil,
+                "\(Self.self) does not support accessing contiguous storage"
             )
             
-            return try $0.withMemoryRebound(to: UInt32.self) {
-                return try body($0)
-            }
+            return try buf.baseAddress!
+                .withMemoryRebound(to: UInt32.self, capacity: buf.count * 2)
+                { ptr in
+                    return try body(
+                        UnsafeMutableBufferPointer(
+                            start: ptr,
+                            count: buf.count * 2
+                        )
+                    )
+                }
         }!
     }
 }
