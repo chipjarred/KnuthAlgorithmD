@@ -179,7 +179,7 @@ The only other thing I do for this loop is to give the conditions names, but whi
 
 # Notes on the efficiency of subtracting then retro-adjusting:
 
-In the subtraction below, we get a borrow if `q̂` is still too high.
+In the that follows the inner loop, we get a borrow if `q̂` is still too high.
 The while loop above catches most of the cases where `q̂` was one too big
 and all of the cases where `q̂` was two too big, but that check only
 involved the first two digits of the divisor and first two digit of
@@ -194,7 +194,7 @@ digit operations we need for the two possibilties.
 
 For what we're actually doing:
 
-   Multiply-and-subtract: This is done in a single pass O(*n*) loop.
+- Multiply-and-subtract: This is done in a single pass O(*n*) loop.
        Technically the multiply and subtract are still 2 operations per
        digit, but since we do it in one pass, it's fair to call it *n*,
        since we don't execute a second sequence of branch instructions,
@@ -203,10 +203,10 @@ For what we're actually doing:
        account that we are doing more than just a single primitive
        arithmetic operation per iteration.
 
-   Test the borrow: This is a constant time operation.  We can ignore
+- Test the borrow: This is a constant time operation.  We can ignore
        its cost.
 
-   Conditionally add back.  This is another single-pass loop of *n*
+- Conditionally add back.  This is another single-pass loop of *n*
        primitive digit operations.
 
 So the total is 1.5 \* *n* normally, and rarely 2.5 \* *n*.
@@ -218,24 +218,24 @@ the product, then do the subtraction.  If the product was less than
 the dividend, we'd go straight to doing the final subtraction.  What's
 the cost of that?
 
-   Multiply: This is *n* primitive digit operations.
+- Multiply: This is *n* primitive digit operations.
 
-   Compare: Conceptually the comparison is O(*n*), but for practical
+- Compare: Conceptually the comparison is O(*n*), but for practical
        purposes, in this scenario it would return a result in the
        first few digits the vast majority of the time, so we we can
        treat it as constant time on average, and ignore it.
 
-   Conditionally decrement `q̂`: This is constant time, so we can ignore
+- Conditionally decrement `q̂`: This is constant time, so we can ignore
        it.
 
-   Conditionally recompute the product:  There are two ways we could
+- Conditionally recompute the product:  There are two ways we could
        do this.  We could either multiply the new `q̂` by the divisor
        again, or we could subtract the divisor from our existing
        product.  Both require n operations, though subtraction is
        faster for the CPU to do, so we'd probably do it that way.  In
        either case, it's *n* primitive digit operations.
 
-   Subtract the product from the dividend: This is n digit operations.
+- Subtract the product from the dividend: This is n digit operations.
 
 In this alternative scenario we require 2 \* *n* operations if we don't
 need to correct `q̂`, namely multiply and subtract.  When we do need
