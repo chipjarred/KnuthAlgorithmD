@@ -23,8 +23,8 @@ class KnuthAlgorthmy64Tests: XCTestCase
     {
         for _ in 0..<100
         {
-            let divisorLength = Int.random(in: 1...100)
-            let dividendLength = Int.random(in: divisorLength...200)
+            let divisorLength = Int.random(in: 1...50)
+            let dividendLength = Int.random(in: divisorLength...100)
             
             let divisor = generateRandomArray(divisorLength)
             let dividend = generateRandomArray(dividendLength)

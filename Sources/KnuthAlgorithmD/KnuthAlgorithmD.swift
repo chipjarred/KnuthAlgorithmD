@@ -268,23 +268,20 @@ public func divideWithRemainder_KnuthD64<T, U, V, W>(
         
         let dividendHead: BigDigit = (high: u[jPlusN], low: u[jPlusN &- 1])
         
-        var (q̂, r̂) = divide(dividendHead, by: vLast)
-        var partialProduct = multiply(q̂, vNextToLast)
+        // These are tuple arithemtic operations.  `/%` is custom combined
+        // division and remainder operator.  See TupleMath.swift
+        var (q̂, r̂) = dividendHead /% vLast
+        var partialProduct = q̂ * vNextToLast
         var partialDividend:BigDigit = (high: r̂.low, low: u[jPlusN &- 2])
-        
         
         while true
         {
-            let q̂IsTwoDigits = UInt8(q̂.high != 0)
-            let otherDigitsMakeQTooHigh =
-                isGreater(partialProduct, partialDividend)
-            
-            if (q̂IsTwoDigits | otherDigitsMakeQTooHigh) == 1
+            if (UInt8(q̂.high != 0) | (partialProduct > partialDividend)) == 1
             {
-                subtract(&q̂, minus: 1)
-                add(&r̂, plus: vLast)
-                subtract(&partialProduct, minus: vNextToLast)
-                addTuple(&partialDividend, plus: partialDividendDelta)
+                q̂ -= 1
+                r̂ += vLast
+                partialProduct -= vNextToLast
+                partialDividend += partialDividendDelta
                 
                 if r̂.high == 0 { continue }
             }
