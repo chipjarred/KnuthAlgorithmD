@@ -77,7 +77,7 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
     W.Index == T.Index
 {
     typealias Digit = T.Element
-    typealias BigDigit = (high: T.Element, low: T.Element)
+    typealias TwoDigits = (high: T.Element, low: T.Element)
     let digitWidth = Digit.bitWidth
     let m = dividend.count
     let n = divisor.count
@@ -112,19 +112,19 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
     
     let vLast: Digit = v.last!
     let vNextToLast: Digit = v[n - 2]
-    let partialDividendDelta: BigDigit = (high: vLast, low: 0)
+    let partialDividendDelta: TwoDigits = (high: vLast, low: 0)
 
     for j in (0...(m - n)).reversed()
     {
         let jPlusN = j &+ n
         
-        let dividendHead: BigDigit = (high: u[jPlusN], low: u[jPlusN &- 1])
+        let dividendHead: TwoDigits = (high: u[jPlusN], low: u[jPlusN &- 1])
         
         // These are tuple arithemtic operations.  `/%` is custom combined
         // division and remainder operator.  See TupleMath.swift
         var (q̂, r̂) = dividendHead /% vLast
         var partialProduct = q̂ * vNextToLast
-        var partialDividend:BigDigit = (high: r̂.low, low: u[jPlusN &- 2])
+        var partialDividend:TwoDigits = (high: r̂.low, low: u[jPlusN &- 2])
         
         while true
         {
