@@ -140,20 +140,12 @@ public func divideWithRemainder_KnuthD<T, U, V, W>(
             break
         }
 
-        var borrow = subtractReportingBorrow(
-            v[0..<n],
-            times: q̂.low,
-            from: &u[j..<jPlusN]
-        )
-        borrow = subtractReportingBorrow(&u[jPlusN], borrow)
-
         quotient[j] = q̂.low
         
-        if borrow != 0
+        if subtractReportingBorrow(v[0..<n], times: q̂.low, from: &u[j...jPlusN])
         {
             quotient[j] &-= 1
-            let carry = addReportingCarry(x: v[0..<n], to: &u[j..<(jPlusN)])
-            u[jPlusN] &+= carry
+            u[j...jPlusN] += v[0..<n]
         }
     }
     
