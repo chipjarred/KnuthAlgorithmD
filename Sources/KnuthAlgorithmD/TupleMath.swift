@@ -64,7 +64,7 @@ internal func /% <T>(
 
 // -------------------------------------
 /**
- Tests if  the typle, `left`, is greater than tuple, `right`.
+ Tests if  the tuple, `left`, is greater than tuple, `right`.
  
  - Returns: `UInt8` that has the value of 1 if `left` is greater than right;
     otherwise, 0.  This is done in place of returning a boolean as part of an
